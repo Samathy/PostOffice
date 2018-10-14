@@ -2,6 +2,7 @@ import cups
 import sys
 import time
 import socket
+import os
 
 connection_limit = 10
 
@@ -11,7 +12,50 @@ def check_rate_limit(connection_ip):
     '''Checks previous connections and rejects this one if connected too over
     some number of times today. 
     Returns True if connection allowed, false if not.
+    
+    Delete last line: https://stackoverflow.com/a/10289740
     '''
+
+    try:
+        f = open(connection_ip+".rate", "r+")
+    except FileNotFoundError:
+        f = open(connection_ip+".rate", "a+")
+
+    #This is really slow, apparently. But we probably don't care much.
+    last = ""
+    first = f.readline()
+    for last in f: pass
+
+    
+    if (last.split(" ")[0] == time.strftime("%d/%m/%Y")):
+        #Check the existing value for today
+        if (int(last.split(" ")[1]) >= 20):
+            #Return false if we've exceeded the limit
+            f.close()
+            return False
+        else:
+            #Increment it
+            previous_val = int(last.split(" ")[1])
+            f.seek(0, os.SEEK_END)
+            pos = f.tell() - 1
+            while pos > 0 and f.read(1) != "\n":
+                pos -= 1
+                f.seek(pos, os.SEEK_SET)
+
+            if pos > 0:
+                f.seek(pos, os.SEEK_SET)
+                f.truncate()
+
+            f.write("\n"+time.strftime("%d/%m/%Y")+" "+str(previous_val+1))
+             
+    elif(last.split(" ")[0] != time.strftime("%d/%m/%Y")):
+        #Add a new date if it doesnt exist yet.
+        f.close()
+        f = open(connection_ip+".rate", "a")
+
+        f.writelines(time.strftime("%d/%m/%Y")+" "+str(1)+"\n")
+
+    f.close()
 
     return True
 
@@ -63,7 +107,7 @@ def await_connections():
     
     conn, addr = sock.accept()
 
-    if (check_rate_limit(addr) == True):
+    if (check_rate_limit(addr[0]) == True):
         data = conn.recv(buffer_size)
 
         print(data.decode())
