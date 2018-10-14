@@ -1,6 +1,7 @@
 import unittest
 import time
 import os
+import gnupg
 
 import postoffice
 
@@ -92,7 +93,20 @@ class tests(unittest.TestCase):
         os.remove(filename)
 
         return
+    
+    def test_parse_string(self):
+        gpg = gnupg.GPG()
 
+        message = "hello"
+
+        encrypted_message = gpg.encrypt(message, "samathy@sbarratt.co.uk")
+        decrypted_message = postoffice.parse_string(str(encrypted_message))
+
+        print(decrypted_message)
+
+        assert str(decrypted_message) == "hello"
+
+        
 
     def test_connection(self):
         return

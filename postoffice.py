@@ -3,6 +3,7 @@ import sys
 import time
 import socket
 import os
+import gnupg
 
 connection_limit = 10
 
@@ -91,7 +92,16 @@ def parse_string(string):
     '''Parses the printable bytes with an attempt to find 
     one of the special strings we can handle'''
 
-    return
+    gpg = gnupg.GPG()
+
+    key_len = 40
+    print(string)
+    if ("-----BEGIN PGP MESSAGE----" in string[:30]):
+        message_decrypted = gpg.decrypt(string)
+
+        return message_decrypted
+
+    return string
 
 def await_connections():
     
@@ -111,7 +121,7 @@ def await_connections():
         data = conn.recv(buffer_size)
 
         print(data.decode())
-        filename = write_file(data.decode(), addr[0], time.strftime("%d-%m-%Y-%H-%M"))
+        filename = write_file(parse_string(data.decode()), addr[0], time.strftime("%d-%m-%Y-%H-%M"))
 
         print_file(filename)
 
