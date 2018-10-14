@@ -75,9 +75,6 @@ def write_file(string, ip, date):
 
 def print_file(filename):
     
-    with open(filename, "r") as f:
-        print(f.readline())
-
     default = cups_connection.getDefault();
 
     cups_connection.printFile(default, filename, filename, dict())
@@ -95,7 +92,6 @@ def parse_string(string):
     gpg = gnupg.GPG()
 
     key_len = 40
-    print(string)
     if ("-----BEGIN PGP MESSAGE----" in string[:30]):
         message_decrypted = gpg.decrypt(string)
 
@@ -120,7 +116,6 @@ def await_connections():
     if (check_rate_limit(addr[0]) == True):
         data = conn.recv(buffer_size)
 
-        print(data.decode())
         filename = write_file(parse_string(data.decode()), addr[0], time.strftime("%d-%m-%Y-%H-%M"))
 
         print_file(filename)

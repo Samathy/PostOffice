@@ -102,8 +102,6 @@ class tests(unittest.TestCase):
         encrypted_message = gpg.encrypt(message, "samathy@sbarratt.co.uk")
         decrypted_message = postoffice.parse_string(str(encrypted_message))
 
-        print(decrypted_message)
-
         assert str(decrypted_message) == "hello"
 
         
