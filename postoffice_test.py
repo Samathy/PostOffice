@@ -75,16 +75,19 @@ class tests(unittest.TestCase):
     def parse_string(self):
         return
 
-    def write_file(self):
-        filename = "192.168.0.0"+"_"+time.strftime("%d-%m-%Y")
-        postoffice.write_file("hello", "192.168.0.0", time.strftime("%d-%m-%Y"))
+    def test_write_file(self):
+        filename = "192.168.0.0"+"_"+time.strftime("%d-%m-%Y-%H-%M")
+        postoffice.write_file("hello", "192.168.0.0", time.strftime("%d-%m-%Y-%H-%M"))
 
         try:
             f = open(filename, "r")
         except FileNotFoundError:
             self.fail("Could not open file: "+ filename)
 
-        assert f.readline() == "hello"
+        for last in f: pass
+        assert last == "hello"
+
+        f.close()
 
         os.remove(filename)
 

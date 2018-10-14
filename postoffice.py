@@ -111,7 +111,7 @@ def await_connections():
         data = conn.recv(buffer_size)
 
         print(data.decode())
-        filename = write_file(data.decode(), addr[0], time.strftime("%d-%m-%Y"))
+        filename = write_file(data.decode(), addr[0], time.strftime("%d-%m-%Y-%H-%M"))
 
         print_file(filename)
 
