@@ -4,6 +4,7 @@ import time
 import socket
 import os
 import gnupg
+from daemonize import Daemonize
 
 connection_limit = 10
 
@@ -127,4 +128,12 @@ def await_connections():
 
 
 if __name__ == "__main__":
-    await_connections()
+
+    pid = "/tmp/postoffice.pid"
+
+    if (sys.argv[1] == "-d"):
+        print("Daemonizing....")
+        daemon = Daemonize(app="PostOffice", pid=pid, action=await_connections)
+        daemon.start()
+    else:
+        await_connections()
