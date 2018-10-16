@@ -98,6 +98,8 @@ def parse_string(string):
 
 def await_connections():
     
+    #Uncomment the below to accept non-localhost connections
+    #IP = "0.0.0.0"
     IP = "127.0.0.1"
     PORT = 7878
     
