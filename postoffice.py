@@ -82,10 +82,6 @@ def print_file(filename):
 
     return
 
-def decrypt(string):
-    '''Decrypt the string using user's pgp key'''
-    return
-
 def parse_string(string):
     '''Parses the printable bytes with an attempt to find 
     one of the special strings we can handle'''
