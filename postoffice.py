@@ -97,6 +97,9 @@ def parse_string(string):
     return string
 
 def await_connections():
+    '''Await connections from the outside 
+    and take all actions necessary to print 
+    our content '''
     
     #Uncomment the below to accept non-localhost connections
     #IP = "0.0.0.0"
