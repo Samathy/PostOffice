@@ -73,9 +73,6 @@ class tests(unittest.TestCase):
     def test_print(self):
         return
 
-    def parse_string(self):
-        return
-
     def test_write_file(self):
         filename = "192.168.0.0"+"_"+time.strftime("%d-%m-%Y-%H-%M")
         postoffice.write_file("hello", "192.168.0.0", time.strftime("%d-%m-%Y-%H-%M"))
