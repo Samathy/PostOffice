@@ -110,21 +110,25 @@ def await_connections():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((IP, PORT))
 
-    sock.listen(1)
-    
-    conn, addr = sock.accept()
+    while True:
+        sock.listen(1)
 
-    if (check_rate_limit(addr[0]) == True):
-        data = conn.recv(buffer_size)
+        conn, addr = sock.accept()
 
-        filename = write_file(parse_string(data.decode()), addr[0], time.strftime("%d-%m-%Y-%H-%M"))
+        if check_rate_limit(addr[0]):
+            data = conn.recv(buffer_size)
 
-        print_file(filename)
+            filename = write_file(parse_string(data.decode()), addr[0], time.strftime("%d-%m-%Y-%H-%M"))
 
-        conn.send(b"OK")
+            print_file(filename)
 
-    else:
-        conn.close()
+            conn.send(b"OK")
+
+            conn.close()
+
+        else:
+
+            conn.close()
 
 
 if __name__ == "__main__":
