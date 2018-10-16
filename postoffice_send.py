@@ -11,8 +11,8 @@ sock.connect((IP, PORT))
 sock.send(message.encode())
 data = sock.recv(1024)
 
-if (str(data) == "OK"):
-   print(str(data))
+if str(data) == "OK":
+    print(str(data))
 
 sock.close()
 

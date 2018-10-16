@@ -1,95 +1,89 @@
-import cups
 import sys
 import time
-import socket
 import os
+import socket
 import gnupg
 from daemonize import Daemonize
+import cups
 
-connection_limit = 20
+CONNECTION_LIMIT = 20
 
-cups_connection = cups.Connection()
+CUPS_CONNECTION = cups.Connection()
 
 def check_rate_limit(connection_ip):
     '''Checks previous connections and rejects this one if connected too over
-    some number of times today. 
+    some number of times today.
     Returns True if connection allowed, false if not.
-    
+
     Delete last line: https://stackoverflow.com/a/10289740
     '''
 
     try:
-        f = open(connection_ip+".rate", "r+")
+        rate_limit_file = open(connection_ip+".rate", "r+")
     except FileNotFoundError:
-        f = open(connection_ip+".rate", "a+")
+        rate_limit_file = open(connection_ip+".rate", "a+")
 
     #This is really slow, apparently. But we probably don't care much.
     last = ""
-    first = f.readline()
-    for last in f: pass
+    for last in rate_limit_file:
+        pass
 
-    
-    if (last.split(" ")[0] == time.strftime("%d/%m/%Y")):
+    if last.split(" ")[0] == time.strftime("%d/%m/%Y"):
         #Check the existing value for today
-        if (int(last.split(" ")[1]) >= connection_limit):
+        if int(last.split(" ")[1]) >= CONNECTION_LIMIT:
             #Return false if we've exceeded the limit
-            f.close()
+            rate_limit_file.close()
             return False
         else:
             #Increment it
             previous_val = int(last.split(" ")[1])
-            f.seek(0, os.SEEK_END)
-            pos = f.tell() - 1
-            while pos > 0 and f.read(1) != "\n":
+            rate_limit_file.seek(0, os.SEEK_END)
+            pos = rate_limit_file.tell() - 1
+            while pos > 0 and rate_limit_file.read(1) != "\n":
                 pos -= 1
-                f.seek(pos, os.SEEK_SET)
+                rate_limit_file.seek(pos, os.SEEK_SET)
 
             if pos > 0:
-                f.seek(pos, os.SEEK_SET)
-                f.truncate()
+                rate_limit_file.seek(pos, os.SEEK_SET)
+                rate_limit_file.truncate()
 
-            f.write("\n"+time.strftime("%d/%m/%Y")+" "+str(previous_val+1))
-             
-    elif(last.split(" ")[0] != time.strftime("%d/%m/%Y")):
+            rate_limit_file.write("\n"+time.strftime("%d/%m/%Y")+" "+str(previous_val+1))
+    elif last.split(" ")[0] != time.strftime("%d/%m/%Y"):
         #Add a new date if it doesnt exist yet.
-        f.close()
-        f = open(connection_ip+".rate", "a")
+        rate_limit_file.close()
+        rate_limit_file = open(connection_ip+".rate", "a")
 
-        f.writelines(time.strftime("%d/%m/%Y")+" "+str(1)+"\n")
+        rate_limit_file.writelines(time.strftime("%d/%m/%Y")+" "+str(1)+"\n")
 
-    f.close()
+    rate_limit_file.close()
 
     return True
 
-def write_file(string, ip, date):
+def write_file(string, ip_addr, date):
     '''Saves the passed string to a file.
-    File name is: <ipv4>_<d/m/Y>
+    File name is: <ip_addrv4>_<d/m/Y>
     Return filename.
     '''
-    
-    filename = str(ip)+"_"+str(date)
-    with open(filename, "w+") as f:
-       f.write("----"+ip+"  "+date+"----\n")
-       f.write(string)
+    filename = str(ip_addr)+"_"+str(date)
+    with open(filename, "w+") as message_file:
+        message_file.write("----"+ip_addr+" "+date+"----\n")
+        message_file.write(string)
 
     return filename
 
 def print_file(filename):
-    
-    default = cups_connection.getDefault();
+    '''Sends the file to the printer '''
+    default = CUPS_CONNECTION.getDefault()
 
-    cups_connection.printFile(default, filename, filename, dict())
-
-    return
+    CUPS_CONNECTION.printFile(default, filename, filename, dict())
 
 def parse_string(string):
-    '''Parses the printable bytes with an attempt to find 
+    '''Parses the printable bytes with an attempt to find
     one of the special strings we can handle'''
 
     gpg = gnupg.GPG()
 
-    key_len = 40
-    if ("-----BEGIN PGP MESSAGE----" in string[:30]):
+    if "-----BEGIN PGP MESSAGE----" in string[:30]:
         message_decrypted = gpg.decrypt(string)
 
         return message_decrypted
@@ -97,15 +91,14 @@ def parse_string(string):
     return string
 
 def await_connections():
-    '''Await connections from the outside 
-    and take all actions necessary to print 
+    '''Await connections from the outside
+    and take all actions necessary to print
     our content '''
-    
     #Uncomment the below to accept non-localhost connections
     #IP = "0.0.0.0"
     IP = "127.0.0.1"
     PORT = 7878
-    
+
     buffer_size = 240
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -136,7 +129,7 @@ if __name__ == "__main__":
 
     pid = "/tmp/postoffice.pid"
 
-    if ("-d" in sys.argv):
+    if "-d" in sys.argv:
         print("Daemonizing....")
         daemon = Daemonize(app="PostOffice", pid=pid, action=await_connections)
         daemon.start()
