@@ -6,7 +6,7 @@ import os
 import gnupg
 from daemonize import Daemonize
 
-connection_limit = 10
+connection_limit = 20
 
 cups_connection = cups.Connection()
 
@@ -31,7 +31,7 @@ def check_rate_limit(connection_ip):
     
     if (last.split(" ")[0] == time.strftime("%d/%m/%Y")):
         #Check the existing value for today
-        if (int(last.split(" ")[1]) >= 20):
+        if (int(last.split(" ")[1]) >= connection_limit):
             #Return false if we've exceeded the limit
             f.close()
             return False
