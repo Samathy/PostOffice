@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     pid = "/tmp/postoffice.pid"
 
-    if (sys.argv[1] == "-d"):
+    if ("-d" in sys.argv):
         print("Daemonizing....")
         daemon = Daemonize(app="PostOffice", pid=pid, action=await_connections)
         daemon.start()
