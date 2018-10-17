@@ -124,9 +124,18 @@ def await_connections():
         conn, addr = sock.accept()
 
         if check_rate_limit(addr[0]):
-            data = conn.recv(buffer_size)
+            received_bytes = conn.recv(buffer_size)
 
-            filename = write_file(parse_string(data.decode()), addr[0], time.strftime("%d-%m-%Y-%H-%M%p"))
+            # If we can't decode whatever the user has sent us, we should close
+            # the connection immediately.  Don't just error out here.
+            try:
+                received_string = received_bytes.decode("utf-8")
+            except UnicodeDecodeError as err:
+                print("Error decoding received bytes %r (%s)" % (received_bytes, err))
+                conn.close()
+                continue
+
+            filename = write_file(parse_string(received_string), addr[0], time.strftime("%d-%m-%Y-%H-%M%p"))
 
             print_file(filename)
 
