@@ -71,7 +71,7 @@ def write_file(string, ip_addr, date):
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
 
-    filename = os.path.join(log_dir, str(ip_addr) + "_" + str(date))
+    filename = os.path.join(log_dir, ip_addr + "_" + date)
 
     with open(filename, "w+") as message_file:
         message_file.write("------------\n"+ip_addr+"\n"+date+"\n------------\n")
