@@ -10,6 +10,8 @@ CONNECTION_LIMIT = 20
 
 CUPS_CONNECTION = cups.Connection()
 
+PASSPHRASE = sys.stdin.readline()
+
 def check_rate_limit(connection_ip):
     '''Checks previous connections and rejects this one if connected too over
     some number of times today.
@@ -86,9 +88,9 @@ def parse_string(string):
     gpg = gnupg.GPG()
 
     if "-----BEGIN PGP MESSAGE----" in string[:30]:
-        message_decrypted = gpg.decrypt(string)
+        message_decrypted = gpg.decrypt(string, passphrase=PASSPHRASE)
 
-        return message_decrypted
+        return str(message_decrypted)
 
     return string
 
@@ -101,7 +103,7 @@ def await_connections():
     IP = "127.0.0.1"
     PORT = 7878
 
-    buffer_size = 240
+    buffer_size = 1024
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((IP, PORT))
