@@ -69,7 +69,7 @@ def write_file(string, ip_addr, date):
     with open(filename, "w+") as message_file:
         message_file.write("------------\n"+ip_addr+"\n"+date+"\n------------\n")
         message_file.write(string)
-        message_file.write("------------")
+        message_file.write("\n------------")
 
     return filename
 

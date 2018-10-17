@@ -84,10 +84,10 @@ class tests(unittest.TestCase):
         except FileNotFoundError:
             self.fail("Could not open file: "+ filename)
 
-        last = ""
-        for last in write_file:
-            pass
-        assert last == "hello"
+        lines = list()
+        for line in write_file:
+            lines.append(line)
+        assert lines[-2] == "hello\n"
 
         write_file.close()
 
