@@ -68,8 +68,11 @@ def write_file(string, ip_addr, date):
     File name is: <ip_addrv4>_<d/m/Y>
     Return filename.
     '''
-    folder = "logs/"
-    filename = folder + str(ip_addr)+"_"+str(date)
+    log_dir = "logs"
+    os.makedirs(log_dir, exist_ok=True)
+
+    filename = os.path.join(log_dir, str(ip_addr) + "_" + str(date))
+
     with open(filename, "w+") as message_file:
         message_file.write("------------\n"+ip_addr+"\n"+date+"\n------------\n")
         message_file.write(string)
