@@ -2,7 +2,7 @@ PostOffice
 ======================
 
 A silly Python program which listens for connections
-over TCP and prints whever bytes are recieved over
+over TCP and prints whever bytes are received over
 that connection.
 Performs some rudimentory
 rate-limiting.
@@ -15,7 +15,7 @@ Part of why this is an amusing project is that I'm not going to tell you how to
 send bytes. Work it out! 
 PostOffice, by default, accepts connections on port 7878.
 Have a look at the postoffice_send.py file if you
-have too, or have a look at the Ncat tool. You'll work it out.
+have to, or have a look at the Ncat tool. You'll work it out.
 
 Messages are printed in the format:
 
@@ -32,7 +32,7 @@ Messages are printed in the format:
 GPG HOWTO
 ----------------------
 Since messages are not sent over an encrypted connection, PostOffice accepts
-GPG encrypted messages in ACII armoured format. Messages are decrypted and
+GPG encrypted messages in ASCII armoured format. Messages are decrypted and
 then stored in plain text, so don't send your bank details, home address, or
 list of heinous crimes to me please.
 
