@@ -76,8 +76,8 @@ class tests(unittest.TestCase):
         return
 
     def test_write_file(self):
-        filename = "192.168.0.0"+"_"+time.strftime("%d-%m-%Y-%H-%M")
-        postoffice.write_file("hello", "192.168.0.0", time.strftime("%d-%m-%Y-%H-%M"))
+        filename = "logs/"+"192.168.0.0"+"_"+time.strftime("%d-%m-%Y-%H-%M%p")
+        postoffice.write_file("hello", "192.168.0.0", time.strftime("%d-%m-%Y-%H-%M%p"))
 
         try:
             write_file = open(filename, "r")

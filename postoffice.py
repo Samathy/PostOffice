@@ -19,6 +19,8 @@ def check_rate_limit(connection_ip):
 
     Delete last line: https://stackoverflow.com/a/10289740
     '''
+    #TODO have one variable with the date/time string and use that instead of
+    #multiple calls to strftime
 
     try:
         rate_limit_file = open(connection_ip+".rate", "r+")
@@ -116,7 +118,7 @@ def await_connections():
         if check_rate_limit(addr[0]):
             data = conn.recv(buffer_size)
 
-            filename = write_file(parse_string(data.decode()), addr[0], time.strftime("%d-%m-%Y-%H-%M"))
+            filename = write_file(parse_string(data.decode()), addr[0], time.strftime("%d-%m-%Y-%H-%M%p"))
 
             print_file(filename)
 
