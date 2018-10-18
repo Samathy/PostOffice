@@ -2,33 +2,30 @@ import unittest
 import time
 import os
 import gnupg
-
+from parameterized import parameterized
 import postoffice
 
 
 class tests(unittest.TestCase):
 
-    def test_rate_limit(self):
-        #Test irate_limit_file the number orate_limit_file rates is over 20, we are limited.
+    @parameterized.expand([
+        (["01/02/2002 5\n", "30/44/1997 10\n", time.strftime("%d/%m/%Y")+" 20\n"], False, time.strftime("%d/%m/%Y"), str(20)), 
+        (["01/02/2002 5\n", "30/44/1997 10\n"], True, time.strftime("%d/%m/%Y"), str(1)),
+        (["01/02/2002 5\n", "30/44/1997 10\n", time.strftime("%d/%m/%Y")+" 10\n"], True, time.strftime("%d/%m/%Y"), str(11))
+    ])
+    def test_rate_limit(self, writable_lines, expected, lastline_date, lastline_value):
+        '''First, test that if the number of hits for today is above 20, we return False.
+           Second, test that if there is no rate for today, we we add it and return True.
+           Last, test that if there is an existing rate for today, we increment it and return True.'''
         filename = "127.0.0.1.rate"
         rate_limit_file = open(filename, "w+")
-        rate_limit_file.writelines("01/02/2002 5\n")
-        rate_limit_file.writelines("30/44/1997 10\n")
-        rate_limit_file.writelines(time.strftime("%d/%m/%Y")+" 20\n")
+
+        for line in writable_lines:
+            rate_limit_file.writelines(line)
+
         rate_limit_file.close()
 
-        assert postoffice.check_rate_limit("127.0.0.1") is False
-
-        os.remove(filename)
-
-        #Test irate_limit_file we don't have an entry yet for today, one is added.
-
-        rate_limit_file = open(filename, "w+")
-        rate_limit_file.writelines("01/02/2002 5\n")
-        rate_limit_file.writelines("30/44/1997 10\n")
-        rate_limit_file.close()
-
-        assert postoffice.check_rate_limit("127.0.0.1") is True
+        assert postoffice.check_rate_limit("127.0.0.1") is expected
 
         rate_limit_file = open(filename, "r+")
         last = ""
@@ -39,34 +36,8 @@ class tests(unittest.TestCase):
         last_date = last.split(" ")[0]
         last_count = last.split(" ")[1]
 
-        assert last_date == time.strftime("%d/%m/%Y")
-        assert last_count.strip() == str(1)
-
-        rate_limit_file.close()
-
-        os.remove(filename)
-
-        #Test irate_limit_file we already have an entry, it is incremented
-
-        filename = "127.0.0.1.rate"
-        rate_limit_file = open(filename, "w+")
-        rate_limit_file.writelines("01/02/2002 5\n")
-        rate_limit_file.writelines("30/44/1997 10\n")
-        rate_limit_file.writelines(time.strftime("%d/%m/%Y")+" 10\n")
-        rate_limit_file.close()
-
-        assert postoffice.check_rate_limit("127.0.0.1") is True
-
-        rate_limit_file = open(filename, "r+")
-        last = ""
-        for last in rate_limit_file:
-            pass
-        rate_limit_file.close()
-        last_date = last.split(" ")[0]
-        last_count = last.split(" ")[1]
-
-        assert last_date == time.strftime("%d/%m/%Y")
-        assert last_count.strip() == str(11)
+        assert last_date == lastline_date
+        assert last_count.strip() == lastline_value
 
         os.remove(filename)
 
