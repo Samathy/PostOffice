@@ -43,7 +43,22 @@ class tests(unittest.TestCase):
 
         return
 
-    def test_print(self):
+    @mock.patch("postoffice.CUPS_CONNECTION", autospec=True)
+    def test_print(self, cups_connection):
+
+        filename = "testfile.txt"
+
+        with open(filename, "w+") as testfile:
+            testfile.write("Hello. This is a test string")
+
+        postoffice.print_file(filename)
+
+        cups_connection.getDefault.assert_called_once()
+
+        cups_connection.printFile.assert_called_with(cups_connection.getDefault.return_value, filename, filename, {})
+
+        os.remove(filename)
+
         return
 
     def test_write_file(self):
