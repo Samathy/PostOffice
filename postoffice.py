@@ -8,7 +8,13 @@ import cups
 
 CONNECTION_LIMIT = 20
 
-CUPS_CONNECTION = cups.Connection()
+try:
+    CUPS_CONNECTION = cups.Connection()
+except RuntimeError as e:
+    print(str(e))
+    print("Cups connection will be mocked.")
+    CUPS_CONNECTION = None
+
 
 PASSPHRASE = sys.stdin.readline()
 
@@ -79,9 +85,14 @@ def write_file(string, ip_addr, date):
 
 def print_file(filename):
     '''Sends the file to the printer '''
-    default = CUPS_CONNECTION.getDefault()
+    if CUPS_CONNECTION is None:
+        return
 
-    CUPS_CONNECTION.printFile(default, filename, filename, dict())
+    default = CUPS_CONNECTION.getDefault()
+    if default == None:
+        raise IOError("No default printer")
+
+    return CUPS_CONNECTION.printFile(default, filename, filename, dict())
 
 def parse_string(string):
     '''Parses the printable bytes with an attempt to find
