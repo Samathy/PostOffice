@@ -2,20 +2,13 @@ import sys
 import time
 import os
 import socket
+import traceback
 import argparse
 import gnupg
 from daemonize import Daemonize
-import cups
 
 CONNECTION_LIMIT = 20
-
-try:
-    CUPS_CONNECTION = cups.Connection()
-except RuntimeError as e:
-    print(str(e))
-    print("Cups connection will be mocked.")
-    CUPS_CONNECTION = None
-
+CUPS_CONNECTION = None
 
 PASSPHRASE = sys.stdin.readline()
 
@@ -152,7 +145,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='A one way telegram machine!')
     parser.add_argument('-d', dest='daemon', action='store_true',
                         help='Daemonize the process')
+    parser.add_argument('-P', '--no-printer', dest='printer',
+                        action='store_false',
+                        help="Don't send files to the printer")
     args = parser.parse_args(sys.argv[1:])
+
+    if args.printer:
+        try:
+            import cups
+            CUPS_CONNECTION = cups.Connection()
+        except (ImportError, RuntimeError) as e:
+            print('Error initialising CUPS:', file=sys.stderr)
+            print(traceback.format_exc(), file=sys.stderr)
+            print("Cups connection will be mocked.", file=sys.stderr)
 
     if args.daemon:
         print("Daemonizing....")
