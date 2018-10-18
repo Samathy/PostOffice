@@ -4,13 +4,14 @@ import os
 import socket
 import traceback
 import argparse
+import getpass
 import gnupg
 from daemonize import Daemonize
 
 CONNECTION_LIMIT = 20
 CUPS_CONNECTION = None
 
-PASSPHRASE = sys.stdin.readline()
+PASSPHRASE = None
 
 def check_rate_limit(connection_ip):
     '''Checks previous connections and rejects this one if connected too over
@@ -153,6 +154,7 @@ if __name__ == "__main__":
     pid = "/tmp/postoffice.pid"
     daemon = False
     cups = False
+    PASSPHRASE = getpass.getpass('Password for GPG: ')
 
     parser = argparse.ArgumentParser(description='A one way telegram machine!')
     parser.add_argument('-d', dest='daemon', action='store_true',
