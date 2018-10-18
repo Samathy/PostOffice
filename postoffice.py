@@ -2,6 +2,7 @@ import sys
 import time
 import os
 import socket
+import argparse
 import gnupg
 from daemonize import Daemonize
 import cups
@@ -145,8 +146,15 @@ def await_connections():
 if __name__ == "__main__":
 
     pid = "/tmp/postoffice.pid"
+    daemon = False
+    cups = False
 
-    if "-d" in sys.argv:
+    parser = argparse.ArgumentParser(description='A one way telegram machine!')
+    parser.add_argument('-d', dest='daemon', action='store_true',
+                        help='Daemonize the process')
+    args = parser.parse_args(sys.argv[1:])
+
+    if args.daemon:
         print("Daemonizing....")
         daemon = Daemonize(app="PostOffice", pid=pid, action=await_connections)
         daemon.start()
