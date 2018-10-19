@@ -2,6 +2,7 @@ import unittest
 import time
 import os
 import gnupg
+import getpass
 from parameterized import parameterized
 from unittest import mock
 import postoffice
@@ -84,6 +85,8 @@ class tests(unittest.TestCase):
 
     def test_parse_string(self):
         gpg = gnupg.GPG()
+
+        postoffice.PASSPHRASE = getpass.getpass()
 
         message = "hello"
 
